@@ -102,6 +102,14 @@ function imageCount(content: unknown): number {
   ).length;
 }
 
+function formatToolCall(item: Record<string, unknown>): string {
+  const name = typeof item.name === "string" ? item.name : "tool";
+  const args = item.arguments && typeof item.arguments === "object"
+    ? item.arguments as Record<string, unknown>
+    : undefined;
+  return `▸ ${name}${summarizeToolArgs(name, args)}`;
+}
+
 function appendWrapped(lines: string[], text: string, width: number): void {
   const wrapWidth = Math.max(1, width - 2);
   const sourceLines = text.split("\n");
@@ -427,8 +435,8 @@ export class AgentNavigator {
 
   /**
    * Enter the list from an empty editor with Down. Up/Down only moves the
-   * candidate row; Enter confirms the switch. Escape or Up above Main returns
-   * input to the editor without changing the active agent.
+   * candidate row; Enter confirms the switch and keeps the active row focused.
+   * Escape or Up above Main returns input to the editor.
    */
   handleTerminalInput(data: string): { consume?: boolean } | undefined {
     const entries = this.navigationEntries();
@@ -453,7 +461,6 @@ export class AgentNavigator {
 
     if (matchesKey(data, Key.enter)) {
       const candidate = this.highlightedAgentId;
-      this.listFocused = false;
       if (!this.activate(candidate)) {
         this.highlightedAgentId = this.selectedAgentId;
       }
@@ -854,11 +861,7 @@ export class AgentNavigator {
             lines.push(theme.fg("dim", "  Thinking"));
             appendWrapped(lines, theme.fg("dim", item.thinking), width);
           } else if (item.type === "toolCall") {
-            const name = typeof item.name === "string" ? item.name : "tool";
-            const args = item.arguments && typeof item.arguments === "object"
-              ? item.arguments as Record<string, unknown>
-              : undefined;
-            appendWrapped(lines, theme.fg("dim", `▸ ${name}${summarizeToolArgs(name, args)}`), width);
+            appendWrapped(lines, theme.fg("dim", formatToolCall(item)), width);
           }
         }
         return;
