@@ -135,6 +135,23 @@ describe("validateWorktreePath", () => {
     expect(success.resolvedPath).toBe(mainCheckout);
   });
 
+  it("accepts Windows git-common-dir paths with mixed separators", async () => {
+    const parentCwd = join(tmpDir, "parent");
+    const worktreePath = join(tmpDir, "feature");
+    mkdirSync(parentCwd, { recursive: true });
+    mkdirSync(worktreePath, { recursive: true });
+
+    const gitResults = new Map<string, string | null>([
+      [parentCwd, "E:\\projects\\manager\\.git"],
+      [worktreePath, "E:/projects/manager/.git"],
+    ]);
+
+    const result = await validateWorktreePath(makePi(gitResults), worktreePath, parentCwd);
+
+    expect(result.ok).toBe(true);
+    expect((result as WorktreeValidationSuccess).resolvedPath).toBe(worktreePath);
+  });
+
   it("returns worktree root and non-empty label on success", async () => {
     const parentCwd = join(tmpDir, "parent");
     const worktreePath = join(tmpDir, "wt-feature");
