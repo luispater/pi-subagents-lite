@@ -1,21 +1,23 @@
 {
   "lockfileVersion": 1,
-  "configVersion": 1,
   "workspaces": {
     "": {
       "name": "@router-for-me/pi-subagents-lite",
-      "dependencies": {
-        "@earendil-works/pi-agent-core": "^0.80.1",
-        "@sinclair/typebox": "^0.34.49",
-      },
       "devDependencies": {
+        "@earendil-works/pi-agent-core": "^0.80.1",
+        "@earendil-works/pi-ai": "^0.80.1",
+        "@earendil-works/pi-coding-agent": "^0.80.1",
+        "@earendil-works/pi-tui": "^0.80.1",
+        "@sinclair/typebox": "^0.34.49",
         "typescript": "^6.0.3",
         "vitest": "^4.1.7",
       },
       "peerDependencies": {
-        "@earendil-works/pi-ai": "^0.80.1",
-        "@earendil-works/pi-coding-agent": "^0.80.1",
-        "@earendil-works/pi-tui": "^0.80.1",
+        "@earendil-works/pi-agent-core": "*",
+        "@earendil-works/pi-ai": "*",
+        "@earendil-works/pi-coding-agent": "*",
+        "@earendil-works/pi-tui": "*",
+        "@sinclair/typebox": "*",
       },
     },
   },
