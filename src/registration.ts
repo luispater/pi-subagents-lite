@@ -24,10 +24,11 @@ export function registerAgentTool(pi: ExtensionAPI): void {
   const agentParam = types.length > 0
     ? Type.Optional(Type.String({ description: types.join(",") }))
     : Type.Optional(Type.String());
-  // @ts-expect-error — description removed to save prompt tokens
+  // Keep the required description empty to save tokens and support codemode.
   pi.registerTool({
     name: "Agent",
     label: "Agent",
+    description: "",
     parameters: Type.Object({
       prompt: Type.String(),
       description: Type.Optional(Type.String()),
@@ -65,10 +66,10 @@ export function registerTools(pi: ExtensionAPI): void {
   registerAgentTool(pi);
 
   // StopAgent tool — stealth schema, stop a running agent by ID
-  // @ts-expect-error — description removed to save prompt tokens
   pi.registerTool({
     name: "StopAgent",
     label: "StopAgent",
+    description: "",
     parameters: Type.Object({
       agent_id: Type.String(),
     }),
@@ -76,10 +77,10 @@ export function registerTools(pi: ExtensionAPI): void {
   });
 
   // AgentStatus tool — stealth schema, list all agents and their statuses
-  // @ts-expect-error — description removed to save prompt tokens
   pi.registerTool({
     name: "AgentStatus",
     label: "AgentStatus",
+    description: "",
     parameters: Type.Object({}),
     execute: executeAgentStatusTool,
   });

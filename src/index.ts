@@ -5,7 +5,7 @@
  *
  * Stealth tool registration:
  *   - All tools register at extension init (not runtime)
- *   - No description, no promptSnippet, no promptGuidelines
+ *   - Empty description for host compatibility, no promptSnippet, no promptGuidelines
  *   - Parameters without .description()
  *   - Model parameter removed from schema — injected via tool_call listener
  *

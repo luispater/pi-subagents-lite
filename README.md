@@ -26,7 +26,7 @@ Every tool the LLM sees costs tokens — in the system prompt and in every turn.
 
 | Standard | Schema-first |
 |---|---|
-| `description: "Spawn a sub-agent"` | _(removed)_ |
+| `description: "Spawn a sub-agent"` | `description: ""` (required by the host, including codemode) |
 | `promptSnippet` with usage examples | _(none)_ |
 | `promptGuidelines` with rules | _(none)_ |
 | Parameters with `.description()` | Bare `Type.String()` |

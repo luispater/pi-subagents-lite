@@ -2,7 +2,7 @@
  * index.test.ts — Tests for the extension entry point.
  *
  * Tests focus on:
- *   - Tool schema shapes (stealth schemas with description: ".", no promptSnippet/promptGuidelines)
+ *   - Tool schema shapes (stealth schemas with description: "", no promptSnippet/promptGuidelines)
  *   - Listener guards (only mutates event.input.model for Agent tool)
  *   - Schema field exclusion (no model, inherit_context, schedule, isolation params)
  *
@@ -144,10 +144,10 @@ function findTool(api: MockExtensionAPI, name: string) {
 }
 
 /**
- * Verify stealth schema properties: description ".", no promptSnippet, no promptGuidelines.
+ * Verify stealth schema properties: empty description, no promptSnippet, no promptGuidelines.
  */
 function expectStealthSchema(tool: any) {
-  expect(tool.description).toBe(".");
+  expect(tool.description).toBe("");
   expect(tool.promptSnippet).toBeUndefined();
   expect(tool.promptGuidelines).toBeUndefined();
 }
@@ -166,9 +166,9 @@ describe("Agent tool schema — stealth", () => {
 
   const agentTool = () => findTool(api, "Agent");
 
-  it("has no description (stealth)", () => {
+  it("has an empty description (stealth, compatible with codemode)", () => {
     expect(agentTool()).toBeDefined();
-    expect(agentTool()!.description).toBeUndefined();
+    expect(agentTool()!.description).toBe("");
   });
 
   it("has no promptSnippet", () => {
@@ -257,6 +257,36 @@ describe("tool registration", () => {
     const names = api.tools.map((t) => t.name);
     expect(names).toEqual(["Agent", "StopAgent", "AgentStatus"]);
   });
+
+  it.each(["Agent", "StopAgent", "AgentStatus"])(
+    "%s provides a string description without extra prompt metadata",
+    (name) => {
+      const tool = findTool(api, name)!;
+      expect(tool).toBeDefined();
+      expectStealthSchema(tool);
+    },
+  );
+
+  it.each([{ types: ["custom-agent"] }, { types: [] }])(
+    "preserves the description contract when Agent is re-registered with types $types",
+    async ({ types }) => {
+      const { getAvailableTypes } = await import("../src/agents/agent-types.js");
+      const { registerAgentTool } = await import("../src/registration.js");
+      const refreshedApi = createMockExtensionAPI();
+      await loadExtension(refreshedApi.api);
+      vi.mocked(getAvailableTypes).mockReturnValueOnce(types);
+
+      registerAgentTool(refreshedApi.api as Parameters<typeof registerAgentTool>[0]);
+
+      expect(refreshedApi.tools).toHaveLength(4);
+      const tool = refreshedApi.tools[3];
+      expect(tool.name).toBe("Agent");
+      expectStealthSchema(tool);
+      expect(tool.parameters.properties.agent.description).toBe(
+        types.length > 0 ? types.join(",") : undefined,
+      );
+    },
+  );
 });
 
 /* ------------------------------------------------------------------ */
